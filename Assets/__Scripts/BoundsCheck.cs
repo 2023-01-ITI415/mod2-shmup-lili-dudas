@@ -10,6 +10,15 @@ using UnityEngine;
 
 public class BoundsCheck : MonoBehaviour
 {
+    [System.Flags]
+    public enum eScreenLocs {
+        onScreen = 0, //0000 in binary
+        offRight = 1, //0001 in binary
+        offLeft = 2, //0010 in binary
+        offUp = 4, //0100 in binary
+        offDown = 8 //1000 in binary
+    }
+
     public enum eType { center, inset, outset};
 
     [Header("Inscribed")]
@@ -18,7 +27,7 @@ public class BoundsCheck : MonoBehaviour
     public bool keepOnScreen = true;
 
     [Header("Dynamic")]
-    public bool isOnScreen = true;
+    public eScreenLocs screenLocs = eScreenLocs.onScreen;
     public float camWidth;
     public float camHeight;
 
@@ -36,29 +45,38 @@ public class BoundsCheck : MonoBehaviour
         if (boundsType == eType.outset) checkRadius = radius;
 
         Vector3 pos = transform.position;
-        isOnScreen = true;
+        screenLocs = eScreenLocs.onScreen;
 
         //restrict the x position to camWidth
         if (pos.x > camWidth + checkRadius){
             pos.x = camWidth + checkRadius;
-            isOnScreen = false;
+            screenLocs |= eScreenLocs.offRight;
         }
         if (pos.x < -camWidth - checkRadius){
             pos.x = -camWidth - checkRadius;
-            isOnScreen = false;
+            screenLocs |= eScreenLocs.offLeft;
         }
         //restrict the y position to camHeight
         if (pos.y > camHeight + checkRadius){
             pos.y = camHeight + checkRadius;
-            isOnScreen = false;
+            screenLocs |= eScreenLocs.offUp;
         }
         if (pos.y < -camHeight - checkRadius){
             pos.y = -camHeight - checkRadius;
-            isOnScreen = false;
+            screenLocs |= eScreenLocs.offDown;
         }
         if ( keepOnScreen && !isOnScreen){
             transform.position = pos;
-            isOnScreen = true;
+            screenLocs = eScreenLocs.onScreen;
         }
+    }
+
+    public bool isOnScreen {
+        get { return ( screenLocs == eScreenLocs.onScreen);}
+    }
+
+    public bool LocIs ( eScreenLocs checkLoc) {
+        if (checkLoc == eScreenLocs.onScreen) return isOnScreen;
+        return((screenLocs & checkLoc) == checkLoc);
     }
 }
