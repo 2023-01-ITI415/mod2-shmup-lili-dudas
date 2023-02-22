@@ -38,6 +38,6 @@ public class Hero : MonoBehaviour
         transform.position = pos;
 
         //rotate the ship to make it feel more dynamic
-        transform.rotation = Quanternion.Euler(vAxis*pitchMult,hAxis*rollMult,0);
+        transform.rotation = Quaternion.Euler(vAxis*pitchMult,hAxis*rollMult,0);
     }
 }
